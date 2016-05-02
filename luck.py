@@ -5,11 +5,18 @@ import sys
 
 
 start_block = None
-if len(sys.argv) > 1:
-    print sys.argv
-    start_block = sys.argv[1]
 
-known_string = 'myCallback'
+known_string = None
+
+if len(sys.argv) > 1:
+    known_string = sys.argv[1]
+ 
+if len(sys.argv) > 2:
+    start_block = sys.argv[2]
+   
+
+#start_block = '4277958'
+#known_string = 'threading.Thread'
 keep_trying = True
 
 def main_loop(block_data, data_lock):
@@ -17,13 +24,14 @@ def main_loop(block_data, data_lock):
     print 'main_loop'
     while True:
         data_len = len(block_data)
+        #print 'data len : ' + str(data_len)
         if data_len < 1:
             time.sleep(5)
             continue
         if known_string in block_data[0]:
             print block_data[0]
             keep_trying = False
-            sys.exit()
+            #sys.exit()
         data_lock.acquire()
         del block_data[:1]
         data_lock.release()
@@ -57,7 +65,7 @@ while keep_trying:
                 data_lock.acquire()
                 block_data.append(block_str)
                 data_lock.release()
-                first_find_done = False
+                #first_find_done = False
                 block_str = ''
 
             else:
@@ -67,13 +75,14 @@ while keep_trying:
                     savepoint_reached = True
                     print 'reached save point : ' + line
 
-                if savepoint_reached:
-                    first_find_done = True
-                    block_count += 1
-                    if block_count == 500:
-                        print line
-                        block_count = 0
+            if savepoint_reached:
+                first_find_done = True
+                block_count += 1
+                if block_count == 2000:
+                    print line
+                    block_count = 0
         if savepoint_reached :
             block_str += line + '\n'
+            #block_str += line 
     readdata = last_line
 
